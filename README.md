@@ -71,7 +71,7 @@ import (
     "log"
     
     _ "github.com/lib/pq"
-    "github.com/jmoiron/sqlx"
+    "mindoktor.io/sqlx""
 )
 
 var schema = `
