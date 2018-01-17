@@ -128,6 +128,14 @@ func (db *DB) NamedQueryContext(ctx context.Context, query string, arg interface
 	return NamedQueryContext(ctx, db, query, arg)
 }
 
+func (db *DB) NamedQueryRowContext(ctx context.Context, query string, arg interface{}) *Row {
+	rows, err := NamedQueryContext(ctx, db, query, arg)
+	if err != nil {
+		return &Row{rows: nil, err: err, unsafe: db.unsafe, Mapper: db.Mapper}
+	}
+	return &Row{rows: rows.Rows, err: nil, unsafe: db.unsafe, Mapper: db.Mapper}
+}
+
 // NamedExecContext using this DB.
 // Any named placeholder parameters are replaced with fields from arg.
 func (db *DB) NamedExecContext(ctx context.Context, query string, arg interface{}) (sql.Result, error) {
@@ -251,6 +259,22 @@ func (tx *Tx) QueryxContext(ctx context.Context, query string, args ...interface
 		return nil, err
 	}
 	return &Rows{Rows: r, unsafe: tx.unsafe, Mapper: tx.Mapper}, err
+}
+
+// NamedQueryContext using this DB.
+// Any named placeholder parameters are replaced with fields from arg.
+func (tx *Tx) NamedQueryContext(ctx context.Context, query string, arg interface{}) (*Rows, error) {
+	return NamedQueryContext(ctx, tx, query, arg)
+}
+
+// NamedQueryRow within a transaction.
+// Any named placeholder parameters are replaced with fields from arg.
+func (tx *Tx) NamedQueryRowContext(ctx context.Context, query string, arg interface{}) *Row {
+	rows, err := NamedQueryContext(ctx, tx, query, arg)
+	if err != nil {
+		return &Row{rows: nil, err: err, unsafe: tx.unsafe, Mapper: tx.Mapper}
+	}
+	return &Row{rows: rows.Rows, err: nil, unsafe: tx.unsafe, Mapper: tx.Mapper}
 }
 
 // SelectContext within a transaction and context.
